@@ -24,6 +24,9 @@ class Sensor_type_model extends CI_Model
         if (isset($data['default_properties']) && is_array($data['default_properties'])) {
             $data['default_properties'] = json_encode($data['default_properties']);
         }
+        if (isset($data['property_schema']) && is_array($data['property_schema'])) {
+            $data['property_schema'] = json_encode($data['property_schema']);
+        }
         $this->db->insert($this->table, $data);
         return $this->db->insert_id();
     }

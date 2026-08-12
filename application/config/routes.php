@@ -52,3 +52,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+
+
+/*
+| -------------------------------------------------------------------------
+| SensorWatch API Routes
+| -------------------------------------------------------------------------
+*/
+
+// Database migration
+$route['api/migrate']['POST'] = 'Migrate/index';
+$route['api/migrate/reset']['POST'] = 'Migrate/reset';
+
+// Seeder
+$route['api/seed/run']['POST'] = 'seeder/run';
+
+// Ingest readings (batch)
+$route['api/ingest/readings']['POST'] = 'ingest/readings';
