@@ -1,0 +1,47 @@
+services:
+  # PHP + Apache application server
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+
+  # MySQL database
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sensorwatch
+      MYSQL_USER: sensorwatch
+      MYSQL_PASSWORD: sensorwatch12345
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  
+  # phpmyadmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: sensorwatch_pma
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: sensorwatch
+      PMA_PASSWORD: sensorwatch12345
+    ports:
+      - "8081:80"
+volumes:
+  db_data:
