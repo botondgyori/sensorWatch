@@ -29,7 +29,11 @@ class Migration_Create_tenants extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('tenants', TRUE);
 
-        $this->db->query('ALTER TABLE tenants ADD UNIQUE INDEX idx_api_key (api_key)');
+        if ($this->db->dbdriver === 'sqlite3') {
+            $this->db->query('CREATE UNIQUE INDEX idx_api_key ON tenants (api_key)');
+        } else {
+            $this->db->query('ALTER TABLE tenants ADD UNIQUE INDEX idx_api_key (api_key)');
+        }
     }
 
     public function down()

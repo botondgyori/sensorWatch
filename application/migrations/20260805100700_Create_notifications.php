@@ -42,10 +42,15 @@ class Migration_Create_notifications extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('notifications', TRUE);
 
-        $this->db->query('ALTER TABLE notifications ADD CONSTRAINT fk_notif_user FOREIGN KEY (user_id) REFERENCES users(id)');
-        $this->db->query('ALTER TABLE notifications ADD CONSTRAINT fk_notif_sensor FOREIGN KEY (sensor_id) REFERENCES sensors(id)');
-        $this->db->query('ALTER TABLE notifications ADD INDEX idx_user (user_id)');
-        $this->db->query('ALTER TABLE notifications ADD INDEX idx_sensor_direction (sensor_id, direction, created_at)');
+        if ($this->db->dbdriver === 'sqlite3') {
+            $this->db->query('CREATE INDEX idx_user ON notifications (user_id)');
+            $this->db->query('CREATE INDEX idx_sensor_direction ON notifications (sensor_id, direction, created_at)');
+        } else {
+            $this->db->query('ALTER TABLE notifications ADD CONSTRAINT fk_notif_user FOREIGN KEY (user_id) REFERENCES users(id)');
+            $this->db->query('ALTER TABLE notifications ADD CONSTRAINT fk_notif_sensor FOREIGN KEY (sensor_id) REFERENCES sensors(id)');
+            $this->db->query('ALTER TABLE notifications ADD INDEX idx_user (user_id)');
+            $this->db->query('ALTER TABLE notifications ADD INDEX idx_sensor_direction (sensor_id, direction, created_at)');
+        }
     }
 
     public function down()

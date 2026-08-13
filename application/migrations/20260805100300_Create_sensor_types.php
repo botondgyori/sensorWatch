@@ -47,7 +47,11 @@ class Migration_Create_sensor_types extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('sensor_types', TRUE);
 
-        $this->db->query('ALTER TABLE sensor_types ADD UNIQUE INDEX idx_type_key (type_key)');
+        if ($this->db->dbdriver === 'sqlite3') {
+            $this->db->query('CREATE UNIQUE INDEX idx_type_key ON sensor_types (type_key)');
+        } else {
+            $this->db->query('ALTER TABLE sensor_types ADD UNIQUE INDEX idx_type_key (type_key)');
+        }
     }
 
     public function down()

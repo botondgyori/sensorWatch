@@ -34,7 +34,9 @@ class Migration_Create_devices extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('devices', TRUE);
 
-        $this->db->query('ALTER TABLE devices ADD CONSTRAINT fk_devices_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)');
+        if ($this->db->dbdriver !== 'sqlite3') {
+            $this->db->query('ALTER TABLE devices ADD CONSTRAINT fk_devices_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)');
+        }
     }
 
     public function down()

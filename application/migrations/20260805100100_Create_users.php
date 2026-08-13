@@ -34,8 +34,12 @@ class Migration_Create_users extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('users', TRUE);
 
-        $this->db->query('ALTER TABLE users ADD CONSTRAINT fk_users_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)');
-        $this->db->query('ALTER TABLE users ADD UNIQUE INDEX idx_tenant_email (tenant_id, email)');
+        if ($this->db->dbdriver === 'sqlite3') {
+            $this->db->query('CREATE UNIQUE INDEX idx_tenant_email ON users (tenant_id, email)');
+        } else {
+            $this->db->query('ALTER TABLE users ADD CONSTRAINT fk_users_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)');
+            $this->db->query('ALTER TABLE users ADD UNIQUE INDEX idx_tenant_email (tenant_id, email)');
+        }
     }
 
     public function down()

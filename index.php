@@ -53,6 +53,12 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
+	if (isset($_SERVER['HTTP_X_TESTING_ENV']) && $_SERVER['HTTP_X_TESTING_ENV'] == '1') {
+		$_SERVER['CI_ENV'] = 'testing';
+	}
+	if (isset($_GET['env']) && $_GET['env'] === 'testing') {
+		$_SERVER['CI_ENV'] = 'testing';
+	}
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
 /*

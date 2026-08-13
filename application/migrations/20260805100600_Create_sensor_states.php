@@ -53,8 +53,12 @@ class Migration_Create_sensor_states extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('sensor_states', TRUE);
 
-        $this->db->query('ALTER TABLE sensor_states ADD CONSTRAINT fk_states_sensor FOREIGN KEY (sensor_id) REFERENCES sensors(id)');
-        $this->db->query('ALTER TABLE sensor_states ADD UNIQUE INDEX idx_sensor_unique (sensor_id)');
+        if ($this->db->dbdriver === 'sqlite3') {
+            $this->db->query('CREATE UNIQUE INDEX idx_sensor_unique ON sensor_states (sensor_id)');
+        } else {
+            $this->db->query('ALTER TABLE sensor_states ADD CONSTRAINT fk_states_sensor FOREIGN KEY (sensor_id) REFERENCES sensors(id)');
+            $this->db->query('ALTER TABLE sensor_states ADD UNIQUE INDEX idx_sensor_unique (sensor_id)');
+        }
     }
 
     public function down()

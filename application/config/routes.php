@@ -78,3 +78,6 @@ $route['api/sensors/(:num)/state']['GET'] = 'sensors/state/$1';
 
 // Notifications (tenant-scoped)
 $route['api/notifications']['GET'] = 'notifications/index';
+
+// Testing Suite
+$route['api/test/run']['POST'] = 'Test/run';

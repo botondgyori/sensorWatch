@@ -44,8 +44,10 @@ class Migration_Create_sensors extends CI_Migration {
         $this->dbforge->add_key('id', TRUE);
         $this->dbforge->create_table('sensors', TRUE);
 
-        $this->db->query('ALTER TABLE sensors ADD CONSTRAINT fk_sensors_device FOREIGN KEY (device_id) REFERENCES devices(id)');
-        $this->db->query('ALTER TABLE sensors ADD CONSTRAINT fk_sensors_type FOREIGN KEY (sensor_type_id) REFERENCES sensor_types(id)');
+        if ($this->db->dbdriver !== 'sqlite3') {
+            $this->db->query('ALTER TABLE sensors ADD CONSTRAINT fk_sensors_device FOREIGN KEY (device_id) REFERENCES devices(id)');
+            $this->db->query('ALTER TABLE sensors ADD CONSTRAINT fk_sensors_type FOREIGN KEY (sensor_type_id) REFERENCES sensor_types(id)');
+        }
     }
 
     public function down()
