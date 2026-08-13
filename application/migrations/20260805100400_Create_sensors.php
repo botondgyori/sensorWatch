@@ -21,7 +21,7 @@ class Migration_Create_sensors extends CI_Migration {
                 'unsigned' => TRUE,
                 'null'     => FALSE
             ),
-            'name' => array(
+            'display_name' => array(
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => FALSE

@@ -40,19 +40,14 @@ class Sensor_model extends CI_Model
             return array();
         }
 
-        $type_props = json_decode($sensor->default_properties, true);
-        $defaults = array();
-        if (isset($type_props['schema'])) {
-            foreach ($type_props['schema'] as $key => $def) {
-                if (isset($def['default'])) {
-                    $defaults[$key] = $def['default'];
-                }
-            }
+        $defaults = json_decode($sensor->default_properties, true);
+        if (!is_array($defaults)) {
+            $defaults = array();
         }
 
         $overrides = $sensor->properties ? json_decode($sensor->properties, true) : array();
 
-        return array_merge($defaults, $overrides);
+        return array_merge($defaults, is_array($overrides) ? $overrides : array());
     }
 
     public function get_by_device($device_id)

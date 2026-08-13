@@ -11,14 +11,14 @@ class Sensor_state_model extends CI_Model
 
         if (!$row) {
             $data = array(
-                'sensor_id'              => $sensor_id,
-                'state'                  => 'normal',
-                'pending_state'          => null,
-                'pending_since'          => null,
-                'last_transition_at'     => null,
-                'last_alert_notified_at' => null,
-                'last_clear_notified_at' => null,
-                'updated_at'             => date('Y-m-d H:i:s'),
+                'sensor_id'          => $sensor_id,
+                'current_state'      => 'normal',
+                'pending_state'      => 'none',
+                'pending_since'      => null,
+                'last_transition_at' => null,
+                'last_notified_at'   => null,
+                'last_reading_id'    => null,
+                'updated_at'         => date('Y-m-d H:i:s'),
             );
             $this->db->insert($this->table, $data);
             $row = $this->db->get_where($this->table, array('sensor_id' => $sensor_id))->row();

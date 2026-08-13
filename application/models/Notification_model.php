@@ -50,4 +50,15 @@ class Notification_model extends CI_Model
             ->get()
             ->result();
     }
+
+    public function get_last_for_sensor_direction($sensor_id, $direction)
+    {
+        return $this->db
+            ->where('sensor_id', $sensor_id)
+            ->where('direction', $direction)
+            ->order_by('created_at', 'DESC')
+            ->limit(1)
+            ->get($this->table)
+            ->row();
+    }
 }

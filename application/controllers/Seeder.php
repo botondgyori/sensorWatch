@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *   - 3 users (Attila & Boti for Botond, Csongi for Csongor)
  *   - 4 sensor types (temperature, humidity, vibration, door_contact)
  *   - 3 devices across the two tenants
- *   - 5 sensors with varying property overrides
+ *   - 6 sensors with varying property overrides
  *   - 7 reading timelines (S1-S7) demonstrating each hysteresis scenario
  *
  * USAGE:
@@ -24,8 +24,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *   Tenants: 1=Botond Solutions (api_key: botond-key-001), 2=Csongor Logistics (api_key: csongor-key-002)
  *   Users:   1=Attila, 2=Boti, 3=Csongi
  *   Devices: 1=Cold Room, 2=Warehouse, 3=Truck Fleet Hub
- *   Sensors: 1=Cold Room Temp, 2=Cold Room Humidity, 3=Warehouse Vibration,
- *            4=Warehouse Door, 5=Fleet Temp
+ *   Sensors: 1=Freezer Temp, 2=Cold Room Temp, 3=Cold Room Humidity,
+ *            4=Warehouse Vibration, 5=Warehouse Door, 6=Fleet Temp
  */
 class Seeder extends MY_Controller {
 
@@ -83,20 +83,21 @@ class Seeder extends MY_Controller {
                     '3 - Csongi (csongi@csongor.com)' => 'tenant: Csongor Logistics'
                 ),
                 'sensors' => array(
-                    '1 - Cold Room Temp'       => 'type: temperature, device: Cold Room (Botond)',
-                    '2 - Cold Room Humidity'   => 'type: humidity, device: Cold Room (Botond)',
-                    '3 - Warehouse Vibration'  => 'type: vibration, device: Warehouse (Botond)',
-                    '4 - Warehouse Door'       => 'type: door_contact, device: Warehouse (Botond)',
-                    '5 - Fleet Temp'           => 'type: temperature, device: Truck Fleet Hub (Csongor)'
+                    '1 - Freezer Temp'         => 'type: temperature, device: Cold Room (Botond)',
+                    '2 - Cold Room Temp'       => 'type: temperature, device: Cold Room (Botond)',
+                    '3 - Cold Room Humidity'   => 'type: humidity, device: Cold Room (Botond)',
+                    '4 - Warehouse Vibration'  => 'type: vibration, device: Warehouse (Botond)',
+                    '5 - Warehouse Door'       => 'type: door_contact, device: Warehouse (Botond)',
+                    '6 - Fleet Temp'           => 'type: temperature, device: Truck Fleet Hub (Csongor)'
                 ),
                 'scenarios' => array(
                     'S1' => 'Spike below dwell (sensor 1) → no alert',
-                    'S2' => 'Sustained breach (sensor 1) → alert + notify',
-                    'S3' => 'Chatter in dead band (sensor 1) → no additional alert',
-                    'S4' => 'Clear with hysteresis (sensor 1) → clear + notify',
-                    'S5' => 'Cooldown suppress (sensor 1) → alert state but notify suppressed',
-                    'S6' => 'Boolean door (sensor 4) → alert after sustained open',
-                    'S7' => 'Multi-tenant isolation (sensor 5) → only tenant 2 notified'
+                    'S2' => 'Sustained breach (sensor 2) → alert + notify',
+                    'S3' => 'Chatter in dead band (sensor 2) → no additional alert',
+                    'S4' => 'Clear with hysteresis (sensor 2) → clear + notify',
+                    'S5' => 'Cooldown suppress (sensor 2) → alert state but notify suppressed',
+                    'S6' => 'Boolean door (sensor 5) → alert after sustained open',
+                    'S7' => 'Multi-tenant isolation (sensor 6) → only tenant 2 notified'
                 )
             )
         ));
@@ -282,19 +283,20 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * Seed 5 sensors with varying property overrides.
+     * Seed 6 sensors with varying property overrides.
      *
      * Each sensor inherits defaults from its type but can override
      * specific values. This demonstrates the merge behavior:
-     *   Sensor 1: uses all defaults (warnAbove=30, clearBelow=28, dwell=60, cooldown=300)
-     *   Sensor 2: overrides dwellSeconds to 60 (type default is 120)
-     *   Sensor 3: wider gap (warnAbove=12, clearBelow=9) and shorter dwell (15s)
-     *   Sensor 4: shorter dwell for boolean (20s vs default 30s)
-     *   Sensor 5: different thresholds for tenant 2 (warnAbove=35, clearBelow=32)
+     *   Sensor 1: uses all type defaults — no overrides (S1 baseline sensor)
+     *   Sensor 2: overrides cooldownSeconds=1200 (type default is 300), uses type defaults for thresholds
+     *   Sensor 3: overrides dwellSeconds to 60 (type default is 120)
+     *   Sensor 4: wider gap (warnAbove=12, clearBelow=9) and shorter dwell (15s)
+     *   Sensor 5: shorter dwell for boolean (20s vs default 30s)
+     *   Sensor 6: different thresholds for tenant 2 (warnAbove=35, clearBelow=32)
      *
      * @param  array $device_ids      Map of device name => id
      * @param  array $sensor_type_ids Map of type_key => id
-     * @return array  Map of name => id
+     * @return array  Map of display_name => id
      */
     protected function seed_sensors($device_ids, $sensor_type_ids)
     {
@@ -302,19 +304,25 @@ class Seeder extends MY_Controller {
             array(
                 'device_id'      => $device_ids['Cold Room'],
                 'sensor_type_id' => $sensor_type_ids['temperature'],
-                'name'           => 'Cold Room Temp',
-                'properties'     => array()  // Uses all type defaults
+                'display_name'   => 'Freezer Temp',
+                'properties'     => array()  // Uses all type defaults — no overrides (S1 baseline)
+            ),
+            array(
+                'device_id'      => $device_ids['Cold Room'],
+                'sensor_type_id' => $sensor_type_ids['temperature'],
+                'display_name'   => 'Cold Room Temp',
+                'properties'     => array('cooldownSeconds' => 1200)  // Override: longer cooldown for S5 scenario
             ),
             array(
                 'device_id'      => $device_ids['Cold Room'],
                 'sensor_type_id' => $sensor_type_ids['humidity'],
-                'name'           => 'Cold Room Humidity',
+                'display_name'   => 'Cold Room Humidity',
                 'properties'     => array('dwellSeconds' => 60)  // Override: tighter dwell
             ),
             array(
                 'device_id'      => $device_ids['Warehouse'],
                 'sensor_type_id' => $sensor_type_ids['vibration'],
-                'name'           => 'Warehouse Vibration',
+                'display_name'   => 'Warehouse Vibration',
                 'properties'     => array(
                     'warnAbove'    => 12,   // Wider gap than default (12 vs 10)
                     'clearBelow'   => 9,    // 9 vs 8
@@ -324,13 +332,13 @@ class Seeder extends MY_Controller {
             array(
                 'device_id'      => $device_ids['Warehouse'],
                 'sensor_type_id' => $sensor_type_ids['door_contact'],
-                'name'           => 'Warehouse Door',
+                'display_name'   => 'Warehouse Door',
                 'properties'     => array('dwellSeconds' => 20)  // Shorter dwell for boolean
             ),
             array(
                 'device_id'      => $device_ids['Truck Fleet Hub'],
                 'sensor_type_id' => $sensor_type_ids['temperature'],
-                'name'           => 'Fleet Temp',
+                'display_name'   => 'Fleet Temp',
                 'properties'     => array(
                     'warnAbove'  => 35,   // Higher threshold for fleet
                     'clearBelow' => 32
@@ -340,7 +348,7 @@ class Seeder extends MY_Controller {
 
         $ids = array();
         foreach ($sensors as $s) {
-            $ids[$s['name']] = $this->Sensor_model->insert($s);
+            $ids[$s['display_name']] = $this->Sensor_model->insert($s);
         }
         return $ids;
     }
@@ -354,14 +362,14 @@ class Seeder extends MY_Controller {
      * The readings are ordered chronologically within each sensor.
      * The processor evaluates them in time order, so the sequence matters.
      *
-     * @param  array $sensor_ids  Map of sensor name => id
+     * @param  array $sensor_ids  Map of sensor display_name => id
      * @return int   Total readings created
      */
     protected function seed_readings($sensor_ids)
     {
         $total = 0;
 
-        $total += $this->seed_s1_spike_below_dwell($sensor_ids['Cold Room Temp']);
+        $total += $this->seed_s1_spike_below_dwell($sensor_ids['Freezer Temp']);
         $total += $this->seed_s2_sustained_breach($sensor_ids['Cold Room Temp']);
         $total += $this->seed_s3_chatter_dead_band($sensor_ids['Cold Room Temp']);
         $total += $this->seed_s4_clear_hysteresis($sensor_ids['Cold Room Temp']);
@@ -373,7 +381,7 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S1 — Spike below dwell (Sensor 1: Cold Room Temp)
+     * S1 — Spike below dwell (Sensor 1: Freezer Temp)
      *
      * Temperature crosses warnAbove (30°C) briefly but drops back
      * before dwellSeconds (60s) elapses.
@@ -403,7 +411,7 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S2 — Sustained breach (Sensor 1: Cold Room Temp)
+     * S2 — Sustained breach (Sensor 2: Cold Room Temp)
      *
      * Temperature stays above warnAbove (30°C) for longer than
      * dwellSeconds (60s), triggering an alert transition.
@@ -434,7 +442,7 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S3 — Chatter in dead band (Sensor 1: Cold Room Temp)
+     * S3 — Chatter in dead band (Sensor 2: Cold Room Temp)
      *
      * While in alert state (from S2), values oscillate between
      * clearBelow (28) and warnAbove (30) — the dead band.
@@ -471,7 +479,7 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S4 — Clear with hysteresis (Sensor 1: Cold Room Temp)
+     * S4 — Clear with hysteresis (Sensor 2: Cold Room Temp)
      *
      * Sensor is in alert (from S2, survived S3). Now values drop below
      * clearBelow (28°C) and stay there for dwellSeconds (60s).
@@ -502,12 +510,13 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S5 — Cooldown suppress (Sensor 1: Cold Room Temp)
+     * S5 — Cooldown suppress (Sensor 2: Cold Room Temp)
      *
      * After clearing at 10:18:00 (S4), a new breach occurs and sustains
-     * past dwellSeconds. However, the notification was sent at 10:18:00,
-     * and cooldownSeconds is 300 (5 minutes). The new alert at 10:22:00
-     * is only 4 minutes later, so the notification is SUPPRESSED.
+     * past dwellSeconds. Cooldown is checked per-direction: the last ALERT
+     * notification was sent at 10:07:00 (from S2). With cooldownSeconds=1200,
+     * the new alert at 10:22:00 is only 900s later (< 1200s), so the
+     * notification is SUPPRESSED.
      *
      * KEY: The state DOES transition to alert. Only the notification is suppressed.
      *
@@ -517,7 +526,7 @@ class Seeder extends MY_Controller {
      *   10:21:30  32°C  (still above, 30s elapsed)
      *   10:22:00  33°C  (60s elapsed → TRANSITION to alert, but...)
      *
-     * 10:22:00 - 10:18:00 = 240s < 300s cooldown → NOTIFICATION SUPPRESSED
+     * 10:22:00 - 10:07:00 = 900s < 1200s cooldown (per-direction) → NOTIFICATION SUPPRESSED
      * State changes to alert, but no notification rows are created.
      *
      * @param  int $sensor_id
@@ -535,7 +544,7 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S6 — Boolean door sensor (Sensor 4: Warehouse Door)
+     * S6 — Boolean door sensor (Sensor 5: Warehouse Door)
      *
      * Door contact sensor uses alertWhen=true (1.0), dwellSeconds=20.
      * First opening is too short (15s). Second opening sustains for 20s.
@@ -570,9 +579,9 @@ class Seeder extends MY_Controller {
     }
 
     /**
-     * S7 — Multi-tenant isolation (Sensor 5: Fleet Temp, Csongor Logistics)
+     * S7 — Multi-tenant isolation (Sensor 6: Fleet Temp, Csongor Logistics)
      *
-     * Sensor 5 belongs to tenant 2 (Csongor Logistics). When it alerts,
+     * Sensor 6 belongs to tenant 2 (Csongor Logistics). When it alerts,
      * only Csongi (Csongor's user) should receive notifications.
      * Attila and Boti (Botond's users) must NOT get notified.
      *

@@ -69,3 +69,12 @@ $route['api/seed/run']['POST'] = 'seeder/run';
 
 // Ingest readings (batch)
 $route['api/ingest/readings']['POST'] = 'ingest/readings';
+
+// Admin Processor
+$route['api/admin/process_readings']['POST'] = 'admin/process_readings';
+
+// Sensor state (tenant-scoped)
+$route['api/sensors/(:num)/state']['GET'] = 'sensors/state/$1';
+
+// Notifications (tenant-scoped)
+$route['api/notifications']['GET'] = 'notifications/index';
